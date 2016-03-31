@@ -37,7 +37,6 @@ flower -A tasks
 example/django_example.py
 使用者应该自行产生一个unique id作为task_id, 调用task的时候使用自己的task_id, 请保证自己id的唯一性, 比如django可以用order_ID作为task_ID
 
-详细的 task_id 规则, 请参照redmine: https://redmine.dhero.cn/projects/dhero-china/wiki/Celery_task_id_rule
 
 
 ##revoke
