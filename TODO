@@ -1,0 +1,18 @@
+一个通用的task pause, task_resume
+
+通过 strategy内的 revoked 这个state.revoked, 它是一个 LimitedSet数据结构, 这个数据结构可以存着,
+模拟revoke的广播, 将pause广播到各个节点, 节点收到pause动作, 类似和revoke一样处理, 存本地node的LimitedSet内
+
+然后在task的request对象的 execute时, 先检查pause, 就像已经支持的revoked的检查一样, 如果是一个 pause的task, 那么就ignore本次execute
+将任务的eta延长适当时间, 让它再次执行
+
+方案2:
+通过自己的方法, 扩展一个LimitedSet,  不hack到celery源码里
+
+定义一个任务负责接收需要pause的任务, 同时也提供一个任务用于resume一个pause的任务
+pause的时候, 把任务id加入全局的LimitedSet数据结构对象内,  在 task的 request对象内, 执行execute时检查pause, 如果pause了, 就回调
+request继承后自己复写的处理pause方法, 这个方法内做delay eta
+
+
+
+task resume动作雷同

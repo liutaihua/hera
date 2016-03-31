@@ -1,0 +1,5 @@
+gevent==1.0.2
+celery==3.1.19
+python-etcd==0.3.3
+redis==2.10.3
+requests==2.8.1
