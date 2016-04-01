@@ -6,7 +6,7 @@ from kombu.transport.redis import Transport, Channel
 from redis import Redis
 from redis.sentinel import Sentinel
 
-from config.app_config import TASK_RESULT_STORE_PREFIX_KEY
+from config.config import TASK_RESULT_STORE_PREFIX_KEY
 
 from common.util import logger
 

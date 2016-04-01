@@ -1,8 +1,7 @@
 import os
 import sys
 from common.util import get_amqp_url_list, get_etcd_setting
-from common.util import get_redis_url
-from common.util import get_redis_db
+from common.util import get_redis_db, get_redis_sentinel_master_name
 from common.util import get_redis_sentinels_list
 from common.util import get_celery_option
 from common.util import logger
@@ -27,7 +26,7 @@ if options.result_backend == 'redis':
     CELERY_RESULT_BACKEND = 'redis-sentinel'
     # fmt: [('192.168.1.217', 16379), ('192.168.1.217', 16379), ('192.168.1.217', 16379)]
     REDIS_SENTINEL_SENTINELS = get_redis_sentinels_list()
-    REDIS_SENTINEL_MASTER_NAME = 'wmcr'
+    REDIS_SENTINEL_MASTER_NAME = get_redis_sentinel_master_name()
     REDIS_SENTINEL_REDIS_DB = get_redis_db()
 elif options.result_backend == 'amqp':
     logger.info('######################## use amqp as the result store ########################')

@@ -1,5 +1,5 @@
 #coding=utf8
-from config.app_config import ENABLE_CUSTOMER_STRATEGY
+from config.config import ENABLE_CUSTOMER_STRATEGY
 from util import get_redis_client, get_redis_prefix
 
 from common.util import logger

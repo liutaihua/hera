@@ -12,7 +12,7 @@ from common.hera_job import HeraRequest as Request
 from celery.worker.state import task_reserved
 from celery.worker.job import revoked_tasks
 
-from config.app_config import REVOKES_MAX
+from config.config import REVOKES_MAX
 # from common.util import logger
 from common.hera_job import paused
 

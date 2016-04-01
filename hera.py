@@ -14,7 +14,7 @@ from celery.datastructures import LimitedSet
 from celery.worker import state
 from celery.bin import Option
 
-from config.app_config import REVOKES_MAX, REVOKE_EXPIRES
+from config.config import REVOKES_MAX, REVOKE_EXPIRES
 
 state.revoked = LimitedSet(maxlen=REVOKES_MAX, expires=REVOKE_EXPIRES)
 

@@ -6,7 +6,7 @@ from heapq import heappush
 from celery.worker.job import Request
 from celery.utils.functional import noop
 from common.util import logger
-from config.app_config import REVOKES_MAX, REVOKE_EXPIRES
+from config.config import REVOKES_MAX, REVOKE_EXPIRES
 
 
 from celery.datastructures import LimitedSet

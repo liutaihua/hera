@@ -1,6 +1,7 @@
 #coding=utf8
 import etcd
-from config.app_config import ETCD_HOST, ETCD_PORT, hera_etcd_settings
+import config.config as config
+from config.config import ETCD_HOST, ETCD_PORT, hera_etcd_settings
 from redis.sentinel import Sentinel
 
 from optparse import OptionParser
@@ -11,7 +12,7 @@ from celery.utils.log import get_task_logger
 logger = get_task_logger(__name__)
 
 
-# from app_config import (ETCD_HOST, ETCD_PORT,\
+# from config import (ETCD_HOST, ETCD_PORT,\
 #     REDIS_SENTINEL_HOST_KEY, REDIS_SENTINEL_PORT_KEY, REDIS_MASTER_NAME_KEY,\
 #                         REDIS_PREFIX_KEY)
 
@@ -39,11 +40,13 @@ def get_amqp_url_list():
     return filter(lambda x:x, AMQP_URLS.split(','))
 
 def get_etcd_setting(s):
-    assert s in hera_etcd_settings, 'not found {} in settings, please check app_config.py'.format(s)
+    assert s in hera_etcd_settings, 'not found {} in settings, please check config.py'.format(s)
     key = hera_etcd_settings[s]
     return etcd_client.read(key).value
 
 def get_redis_url():
+    if hasattr(config, 'ETCD_HOST'):
+        return config.HERA_REDIS_SENTINEL
     sentinel_list = [tuple(i.split(':')) for i in get_etcd_setting('HERA_REDIS_SENTINEL').split(',')]
     redis_db = get_etcd_setting('HERA_REDIS_DB')
     sentinel = Sentinel(sentinel_list, socket_timeout=0.1)
@@ -54,10 +57,19 @@ def get_redis_url():
     )
 
 def get_redis_sentinels_list():
+    if hasattr(config, 'ETCD_HOST'):
+        return config.HERA_REDIS_SENTINEL
     return [tuple(i.split(':')) for i in get_etcd_setting('HERA_REDIS_SENTINEL').split(',')]
 
 def get_redis_db():
+    if hasattr(config, 'ETCD_HOST'):
+        return config.HERA_REDIS_DB
     return get_etcd_setting('HERA_REDIS_DB')
+
+def get_redis_sentinel_master_name():
+    if hasattr(config, 'ETCD_HOST'):
+        return config.HERA_REDIS_MASTERNAME
+    return get_etcd_setting('HERA_REDIS_MASTERNAME')
 
 def get_celery_option():
     w = worker(hera_app)

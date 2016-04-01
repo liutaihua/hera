@@ -1,66 +1,21 @@
-## 使用
+一个提供快速配置出一个可用的celery的框架
 
 
-## 部署说明
-依赖2个etcd的配置项:
-'/config/hera/celery_concurrency'  类型int, 控制celery的并发prefok数量或gevent coroutine数量
-'/service/rabbitmq/celery'         字符串, amqp的url, 多个用逗号隔开
-
-config/hera.supervisor.conf        supervisor配置文件
-建议使用普通用户启动进程
+celery的revoke功能比较弱, revoked task的过期检查是很迟钝, 增强了revoke的时效性
 
 
 
-配置etcd的配置项目
-/service/rabbitmq/celery
-提供AMQP服务地址, 例如 amqp://celery:celery@192.168.1.7:5672/celery
+>#### 功能:
+    1, 可以pause一个task, resume它(新增)
+    2, 可以手工revoke一个task(celery本身支持)
+    3, 支持以redis sentinel模式存储result
+    4, 支持和golang一起用
+    5, 按MVC的模式整理, 方便清晰
 
-celery多个节点可以启动在单个机器上, 参数 -n worker2.%h
+>#### 目录:
+    config: 主要配置是config.py, 一些不常用的celery在celeryconfig.py内
+    common.model: 封装了大概的celery task, 可以直接写on_failure, on_success, 方便直接使用
+    common.strategy: hacky的celery strategy, 如果有需要可以自己在里面干很多事情, pause目前是在里面实现的
+    common.sentinel: 一个支持redis sentinel模式的 celery result backend实现
+    common.hera_job: 一个继承了celery job的JOB 类某些方法覆盖, 可以自己在里面做不少事情
 
-##使用gevent模式:
-python hera_server.py -A hera worker --loglevel=INFO --pool=gevent --result-backend=redis
-gevent pool的大小在celeryconfig.py配置里的CELERYD_CONCURRENCY控制
---result-backend 指定使用存储结果的地方,amqp或redis
-
-prefork模式(进程模式)
--c指定fork数量, 否则使用celeryconfig.py配置里的CELERYD_CONCURRENCY
-celery worker --loglevel=DEBUG -c 10 --result-backend=redis
-
-app_config里配的失败重试次数, 注册一个callback之后, 时间到了执行的时候, 失败, 将任务重新提交到集群, 直到达到最大失败次数
-
-
-启动一个celery flower后台, 在任意一个celery节点, 启一个就足够用了.
-flower -A tasks
-
-
-##调用方使用
-example/django_example.py
-使用者应该自行产生一个unique id作为task_id, 调用task的时候使用自己的task_id, 请保证自己id的唯一性, 比如django可以用order_ID作为task_ID
-
-
-
-##revoke
-django或其他python调用者, 可以直接使用celery的库调用revoke:
-from celery.task.control import revoke
-revoke(your_task_id)
-
-golang或其他缺少celery官方支持的, 调用amqp协议发一个message, 通过一个普通任务revoke另外一个任务:
-app.send_task("timer.revoke_manual", (your_task_id,))
-
-
-## tasks
-
-timer.register_callback         # 注册一个timer类型的回调
-'''
-param  @cb_url          url use when callback
-param  @cb_method       http method when callback the cb_url
-param  @data            http data use callback cb_url
-param  @params          http params for callback cb_url
-'''
-
-
-timer.revoke_manual             # revoke一个已有任务
-'''
-param  @task_id         the task_id of task will be revoke
-param  @terminate       if True, even if the task is running, terminate it
-'''
